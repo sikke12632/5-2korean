@@ -720,7 +720,8 @@ def main():
     written, n_units, n_lessons = build()
     for p in written:
         print("  %s" % p.relative_to(ROOT))
-    print("단원 %d · 차시 %d 중 %d개 빌드" % (n_units, n_lessons, len(written)))
+    pages = [q for q in written if q.parent != SITE]
+    print("단원 %d · 차시 %d 중 %d개 빌드" % (n_units, n_lessons, len(pages)))
 
     hits = check_forbidden(written)
     if hits:
