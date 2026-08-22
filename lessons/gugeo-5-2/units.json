@@ -1,0 +1,335 @@
+{
+  "schema": "units/1",
+  "site": {
+    "title": "말과 글 수첩",
+    "subtitle": "국어 5-2 · 5학년 9반",
+    "nav_foot": "찾고 싶은 차시를 눌러 보세요.\n언제든 다시 와도 괜찮아요.",
+    "teacher_page": true
+  },
+  "units": [
+    {
+      "id": "u1",
+      "order": 1,
+      "label": "1",
+      "title": "작품에 대한 의견을 나누어요",
+      "lessons": [
+        {
+          "code": "01",
+          "title": "배울 내용 살펴보기",
+          "guide_pages": "84~85"
+        },
+        {
+          "code": "02-03",
+          "title": "말에도 색깔이 있지",
+          "guide_pages": "86~89"
+        },
+        {
+          "code": "04-06",
+          "title": "똑, 똑",
+          "guide_pages": "90~93"
+        },
+        {
+          "code": "07-09",
+          "title": "유관순",
+          "guide_pages": "94~99"
+        },
+        {
+          "code": "10-11",
+          "title": "서평 쓰기",
+          "guide_pages": "100~105"
+        },
+        {
+          "code": "12-13",
+          "title": "이달의 책",
+          "guide_pages": "106~109"
+        },
+        {
+          "code": "14",
+          "title": "마무리",
+          "guide_pages": "110~115"
+        }
+      ]
+    },
+    {
+      "id": "u2",
+      "order": 2,
+      "label": "2",
+      "title": "올바른 문장으로 글을 써요",
+      "lessons": [
+        {
+          "code": "01",
+          "title": "준비",
+          "guide_pages": "120~121"
+        },
+        {
+          "code": "02",
+          "title": "문장 성분",
+          "guide_pages": "122~125"
+        },
+        {
+          "code": "03-04",
+          "title": "호응 관계",
+          "guide_pages": "126~131"
+        },
+        {
+          "code": "05-06",
+          "title": "경험 글쓰기",
+          "guide_pages": "132~135"
+        },
+        {
+          "code": "07-08",
+          "title": "매체 특성",
+          "guide_pages": "136~139"
+        },
+        {
+          "code": "09-11",
+          "title": "매체 글쓰기",
+          "guide_pages": "140~145"
+        },
+        {
+          "code": "12-13",
+          "title": "실천",
+          "guide_pages": "146~149"
+        },
+        {
+          "code": "14",
+          "title": "마무리",
+          "guide_pages": "150~155"
+        }
+      ]
+    },
+    {
+      "id": "u3",
+      "order": 3,
+      "label": "3",
+      "title": "표준어와 방언을 알아봐요",
+      "lessons": [
+        {
+          "code": "01",
+          "title": "준비",
+          "guide_pages": "160~161"
+        },
+        {
+          "code": "02-03",
+          "title": "표준어와 방언",
+          "guide_pages": "162~165"
+        },
+        {
+          "code": "04-05",
+          "title": "사용 상황 조사",
+          "guide_pages": "166~169"
+        },
+        {
+          "code": "06-07",
+          "title": "방언의 가치",
+          "guide_pages": "170~173"
+        },
+        {
+          "code": "08-09",
+          "title": "방언 작품 감상",
+          "guide_pages": "174~177"
+        },
+        {
+          "code": "10-11",
+          "title": "실천",
+          "guide_pages": "178~181"
+        },
+        {
+          "code": "12",
+          "title": "마무리",
+          "guide_pages": "182~187"
+        }
+      ]
+    },
+    {
+      "id": "u4",
+      "order": 4,
+      "label": "4",
+      "title": "의견을 조정해요",
+      "lessons": [
+        {
+          "code": "01",
+          "title": "준비",
+          "guide_pages": "226~227"
+        },
+        {
+          "code": "02-03",
+          "title": "의견 조정 방법",
+          "guide_pages": "228~231"
+        },
+        {
+          "code": "04-05",
+          "title": "조정하며 토의",
+          "guide_pages": "232~235"
+        },
+        {
+          "code": "06-07",
+          "title": "학급 문제 해결",
+          "guide_pages": "236~239"
+        },
+        {
+          "code": "08-10",
+          "title": "주변 문제 해결",
+          "guide_pages": "240~245"
+        },
+        {
+          "code": "11-12",
+          "title": "실천",
+          "guide_pages": "246~249"
+        },
+        {
+          "code": "13",
+          "title": "마무리",
+          "guide_pages": "250~255"
+        }
+      ]
+    },
+    {
+      "id": "u5",
+      "order": 5,
+      "label": "5",
+      "title": "추론하며 읽어요",
+      "lessons": [
+        {
+          "code": "01",
+          "title": "준비",
+          "guide_pages": "260~261"
+        },
+        {
+          "code": "02-03",
+          "title": "추론 방법",
+          "guide_pages": "262~265"
+        },
+        {
+          "code": "04-06",
+          "title": "글쓴이 생각",
+          "guide_pages": "266~271"
+        },
+        {
+          "code": "07-08",
+          "title": "함축 표현",
+          "guide_pages": "272~277"
+        },
+        {
+          "code": "09-11",
+          "title": "글쓴이 의도",
+          "guide_pages": "278~283"
+        },
+        {
+          "code": "12-13",
+          "title": "실천",
+          "guide_pages": "284~287"
+        },
+        {
+          "code": "14",
+          "title": "마무리",
+          "guide_pages": "288~293"
+        }
+      ]
+    },
+    {
+      "id": "u6",
+      "order": 6,
+      "label": "6",
+      "title": "작품을 감상해요",
+      "lessons": [
+        {
+          "code": "01",
+          "title": "준비",
+          "guide_pages": "298~299"
+        },
+        {
+          "code": "02-03",
+          "title": "이야기 구성 요소",
+          "guide_pages": "300~303"
+        },
+        {
+          "code": "04-06",
+          "title": "이야기 감상",
+          "guide_pages": "304~311"
+        },
+        {
+          "code": "07-08",
+          "title": "극본 구성 요소",
+          "guide_pages": "312~315"
+        },
+        {
+          "code": "09-10",
+          "title": "극본 감상",
+          "guide_pages": "316~323"
+        },
+        {
+          "code": "11-12",
+          "title": "연극",
+          "guide_pages": "324~327"
+        },
+        {
+          "code": "13-14",
+          "title": "실천",
+          "guide_pages": "328~331"
+        },
+        {
+          "code": "15",
+          "title": "마무리",
+          "guide_pages": "332~337"
+        }
+      ]
+    },
+    {
+      "id": "reading",
+      "order": 7,
+      "label": "독서",
+      "title": "독서 단원",
+      "lessons": [
+        {
+          "code": "01-02",
+          "title": "읽을 책 정하기",
+          "guide_pages": "58~63"
+        },
+        {
+          "code": "03-08",
+          "title": "전자책 독서",
+          "guide_pages": "64~69"
+        },
+        {
+          "code": "09-10",
+          "title": "간추리고 나누기",
+          "guide_pages": "70~79"
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "order": 8,
+      "label": "매체",
+      "title": "매체 단원",
+      "lessons": [
+        {
+          "code": "01-02",
+          "title": "다가가기",
+          "guide_pages": "198~201"
+        },
+        {
+          "code": "03-04",
+          "title": "신뢰성 판단",
+          "guide_pages": "202~207"
+        },
+        {
+          "code": "05-06",
+          "title": "관점 파악",
+          "guide_pages": "208~211"
+        },
+        {
+          "code": "07-09",
+          "title": "뉴스 만들기",
+          "guide_pages": "212~215"
+        },
+        {
+          "code": "10",
+          "title": "돌아보기",
+          "guide_pages": "216~221"
+        }
+      ]
+    }
+  ]
+}
