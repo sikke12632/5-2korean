@@ -22,7 +22,7 @@ lessons/<사이트 id>/<단원 id>/<차시코드>.json  ← 차시 내용 (차�
   "schema": "units/1",
   "site": {
     "title": "말과 글 수첩",
-    "subtitle": "국어 5-2 · 5학년 9반",
+    "subtitle": "초등 국어 5학년 2학기",
     "nav_foot": "찾고 싶은 차시를 눌러 보세요.\n언제든 다시 와도 괜찮아요."
   },
   "units": [
