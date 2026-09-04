@@ -50,7 +50,7 @@ main{min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) max(18px,env(s
 .number-btn{aspect-ratio:1;border-radius:18px;background:#F1F5F8;color:var(--ink);font-family:"Jua",sans-serif;font-size:clamp(26px,5vw,44px);box-shadow:inset 0 -3px 0 var(--line)}.number-btn:active{background:#EAF7F0;color:var(--ok);transform:translateY(2px)}
 .watch{text-align:center;display:grid;gap:18px;justify-items:center}.watch .eye{width:112px;height:112px;border-radius:50%;background:#FFF1EC;color:var(--warn);display:grid;place-items:center;font-family:"Jua",sans-serif;font-size:58px}.watch h1{font-size:clamp(42px,8vw,78px)}.watch p{font-size:clamp(20px,3.4vw,32px);color:var(--muted)}.watch b{font-family:"Jua",sans-serif;color:var(--warn);font-weight:400;font-size:1.25em}
 .turn{display:grid;gap:16px}.turn-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.turn-title{font-size:clamp(32px,5.5vw,54px);color:var(--warn)}.my-number{background:var(--ink);color:#fff;border-radius:999px;padding:.35em .85em;font-family:"Jua",sans-serif;font-size:clamp(19px,3vw,28px)}
-.art{background:var(--panel);border-radius:24px;overflow:hidden;box-shadow:0 2px 0 var(--line);aspect-ratio:4/3}.art img{width:100%;height:100%;object-fit:contain;display:block}
+.art{background:#F3E9DA;border-radius:24px;overflow:hidden;box-shadow:0 2px 0 var(--line);aspect-ratio:4/3}.art img{width:100%;height:100%;object-fit:contain;display:block}
 .inputs{display:grid;gap:14px}.role-card{background:var(--panel);border-radius:22px;box-shadow:0 2px 0 var(--line);padding:16px 18px;display:grid;gap:8px;border:3px solid transparent}.role-card:focus-within{border-color:var(--yellow)}
 .role-label{font-family:"Jua",sans-serif;font-size:clamp(27px,4vw,40px);color:var(--warn)}
 .role-input{width:100%;border:3px solid var(--line);background:#F8FAFB;color:var(--ink);border-radius:16px;padding:.55em .7em;font-family:"Jua",sans-serif;font-size:clamp(28px,4.2vw,42px);outline:0;-webkit-user-select:text;user-select:text}.role-input:focus{border-color:var(--warn);background:#FFF}.role-input::placeholder{color:#AEB8C0}
@@ -78,7 +78,7 @@ main{min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) max(18px,env(s
   </section>
   <section id="turnView" class="view turn">
     <div class="turn-head"><h1 id="turnTitle" class="turn-title">내 차례예요!</h1><div id="myNumber" class="my-number"></div></div>
-    <figure class="art"><img id="sceneImage" alt="내가 문장 조각을 쓸 그림"></figure>
+    <figure class="art"><img id="sceneImage" src="img/01-yangmal.png" alt="내가 문장 조각을 쓸 그림"></figure>
     <div>
       <div id="inputs" class="inputs"></div>
       <button id="submitBtn" class="submit">내기</button>
@@ -95,6 +95,7 @@ main{min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) max(18px,env(s
 <div id="connection" class="connection">연결을 다시 확인하고 있어요…</div>
 <script type="module">
 const IMAGE_FILES=["01-yangmal.png","02-kimchi.png","03-songpyeon.png","04-moja.png","05-goyangi.png","06-gita.png","07-gongnori.png","08-pungseon.png","09-guksu.png"];
+const STUDENT_NUMBERS=[...Array.from({length:15},(_,i)=>i+1),...Array.from({length:13},(_,i)=>i+51)];
 const ROLE_ORDER=["subject","object","predicate"];
 const ROLE_LABEL={subject:"누가?",object:"무엇을?",predicate:"어떻게 한다?"};
 const ROOM_PATH=`act1/${ROOM}`,STUDENT_KEY=`act1-student-${ROOM}`;
@@ -102,9 +103,12 @@ const $=id=>document.getElementById(id),views=['pickView','watchView','turnView'
 const els={pick:$('pickView'),grid:$('numberGrid'),watch:$('watchView'),watchTitle:$('watchTitle'),watchRound:$('watchRound'),turn:$('turnView'),turnTitle:$('turnTitle'),myNumber:$('myNumber'),image:$('sceneImage'),inputs:$('inputs'),submit:$('submitBtn'),sentState:$('sentState'),done:$('doneView'),badge:$('modeBadge'),connection:$('connection')};
 let room={},transport,studentNo=0,renderToken='',presenceCleanup=()=>{};
 const forced=Number(new URLSearchParams(location.search).get('student'));
-if(Number.isInteger(forced)&&forced>=1&&forced<=26)studentNo=forced;else studentNo=Number(localStorage.getItem(STUDENT_KEY))||0;
-for(let n=1;n<=26;n++){const b=document.createElement('button');b.className='number-btn';b.textContent=n;b.addEventListener('click',()=>chooseNumber(n));els.grid.append(b)}
-IMAGE_FILES.forEach(name=>{const img=new Image();img.src=`img/${name}`});
+const stored=Number(localStorage.getItem(STUDENT_KEY));
+if(STUDENT_NUMBERS.includes(forced))studentNo=forced;else if(STUDENT_NUMBERS.includes(stored))studentNo=stored;
+for(const n of STUDENT_NUMBERS){const b=document.createElement('button');b.className='number-btn';b.textContent=n;b.addEventListener('click',()=>chooseNumber(n));els.grid.append(b)}
+const imageUrl=name=>new URL(`img/${name}`,document.baseURI).href;
+const preloadImages=()=>IMAGE_FILES.forEach((name,index)=>{const img=new Image();img.decoding='async';img.fetchPriority=index===0?'high':'low';img.src=imageUrl(name)});
+if('requestIdleCallback'in window)requestIdleCallback(preloadImages,{timeout:1800});else setTimeout(preloadImages,300);
 
 function blankRoom(){return{state:{phase:'waiting',round:-1,picked:[],imageIndex:0},presence:{},used:{},drafts:{},rounds:{},sentences:{}}}
 function clone(v){return JSON.parse(JSON.stringify(v??null))}
@@ -137,7 +141,7 @@ function render(data){
 
 function renderTurn(){
   const s=room.state,round=s.round,members=s.picked||[],owners=ownerMap(members),myRoles=ROLE_ORDER.filter(key=>owners[key]===studentNo),drafts=room.drafts?.[round]||{},token=`${round}-${studentNo}-${myRoles.join()}`;
-  show('turnView');els.turnTitle.textContent=`${round+1}번째 모둠 · 내 차례!`;els.myNumber.textContent=`${studentNo}번`;els.image.src=`img/${IMAGE_FILES[s.imageIndex||0]}`;
+  show('turnView');els.turnTitle.textContent=`${round+1}번째 모둠 · 내 차례!`;els.myNumber.textContent=`${studentNo}번`;els.image.src=imageUrl(IMAGE_FILES[s.imageIndex||0]);
   if(renderToken!==token){renderToken=token;els.inputs.innerHTML='';myRoles.forEach(key=>{const card=document.createElement('label');card.className='role-card';card.innerHTML=`<span class="role-label">${ROLE_LABEL[key]}</span><input class="role-input" data-role="${key}" maxlength="30" autocomplete="off" placeholder="여기에 써요">`;const input=card.querySelector('input');input.value=drafts[key]?.text||'';input.addEventListener('input',()=>sendTyping(key,input.value));els.inputs.append(card)});setTimeout(()=>els.inputs.querySelector('input')?.focus(),50)}else{myRoles.forEach(key=>{const input=els.inputs.querySelector(`[data-role="${key}"]`);if(input&&document.activeElement!==input&&input.value!==(drafts[key]?.text||''))input.value=drafts[key]?.text||''})}
   const allReady=myRoles.every(k=>(els.inputs.querySelector(`[data-role="${k}"]`)?.value||'').trim());const submitted=myRoles.length&&myRoles.every(k=>drafts[k]?.submitted);els.submit.disabled=!allReady;els.sentState.textContent=submitted?'냈어요! 공개 전까지 고칠 수 있어요.':'';
 }

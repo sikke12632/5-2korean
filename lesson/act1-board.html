@@ -51,7 +51,7 @@ h1,.round-title,.draw-title{font-family:"Jua",sans-serif;font-weight:400;letter-
 h1{font-size:clamp(42px,4.3vw,78px);line-height:1.05;text-align:center}
 .presence-summary{display:flex;gap:12px;align-items:center;font-family:"Jua",sans-serif;font-size:clamp(20px,2vw,34px)}
 .presence-summary b{color:var(--ok);font-weight:400}
-.number-grid{width:min(1120px,88vw);display:grid;grid-template-columns:repeat(13,1fr);gap:clamp(8px,.8vw,14px)}
+.number-grid{width:min(1200px,90vw);display:grid;grid-template-columns:repeat(14,1fr);gap:clamp(8px,.8vw,14px)}
 .student{aspect-ratio:1;border-radius:18px;background:#DCE5EC;color:#8A98A6;display:grid;place-items:center;font-family:"Jua",sans-serif;font-size:clamp(24px,2.2vw,40px);box-shadow:inset 0 -3px 0 #CAD5DE;transition:.2s transform,.2s background,.2s color}
 .student.online{background:#EAF7F0;color:var(--ok);box-shadow:inset 0 -3px 0 #B9DEC9;transform:translateY(-2px)}
 .student.used{background:#F1F3F5;color:#B7C0C8;box-shadow:none}
@@ -72,9 +72,9 @@ h1{font-size:clamp(42px,4.3vw,78px);line-height:1.05;text-align:center}
 .timer.zero{background:var(--warn);animation:pulse 1s infinite}
 @keyframes pulse{50%{transform:scale(1.06)}}
 .game-main{min-height:0;flex:1;display:grid;grid-template-columns:minmax(0,1.32fr) minmax(520px,1fr);gap:clamp(16px,2vw,30px)}
-.art-card{position:relative;min-height:0;background:var(--panel);border-radius:28px;overflow:hidden;box-shadow:0 2px 0 var(--line);display:grid;place-items:center}
+.art-card{position:relative;min-height:0;background:#F3E9DA;border-radius:28px;overflow:hidden;box-shadow:0 2px 0 var(--line);display:grid;place-items:center}
 .art-card img{width:100%;height:100%;object-fit:contain;display:block;transition:filter .7s ease,transform .7s ease;will-change:filter}
-.art-card.blurred img{filter:blur(34px) saturate(.6);transform:scale(1.08)}
+.art-card.blurred img{filter:blur(24px) saturate(.65);transform:scale(1.06)}
 .veil{position:absolute;inset:0;background:rgba(234,241,246,.16);pointer-events:none;transition:opacity .5s}.art-card:not(.blurred) .veil{opacity:0}
 .piece-panel{min-height:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1.6vh,20px)}
 .piece{position:relative;min-height:clamp(104px,12vh,142px);background:var(--panel);border-radius:24px;border:4px solid var(--line);box-shadow:0 2px 0 var(--line);padding:12px 22px;display:grid;place-items:center;overflow:hidden;transition:.25s border-color,.25s background,.25s transform;cursor:pointer}
@@ -122,7 +122,7 @@ h1{font-size:clamp(42px,4.3vw,78px);line-height:1.05;text-align:center}
         <div id="timer" class="timer">15</div>
       </div>
       <div class="game-main">
-        <figure id="artCard" class="art-card blurred"><img id="sceneImage" alt="현재 문제 그림"><i class="veil"></i></figure>
+        <figure id="artCard" class="art-card blurred"><img id="sceneImage" src="img/01-yangmal.png" alt="현재 문제 그림"><i class="veil"></i></figure>
         <div id="piecePanel" class="piece-panel"></div>
       </div>
       <div id="sentenceStrip" class="sentence-strip"></div>
@@ -139,6 +139,7 @@ h1{font-size:clamp(42px,4.3vw,78px);line-height:1.05;text-align:center}
 <div id="toast" class="toast" role="status"></div>
 <script type="module">
 const IMAGE_FILES=["01-yangmal.png","02-kimchi.png","03-songpyeon.png","04-moja.png","05-goyangi.png","06-gita.png","07-gongnori.png","08-pungseon.png","09-guksu.png"];
+const STUDENT_NUMBERS=[...Array.from({length:15},(_,i)=>i+1),...Array.from({length:13},(_,i)=>i+51)];
 const ROLE_ORDER=["subject","object","predicate"];
 const ROLE_LABEL={subject:"누가?",object:"무엇을?",predicate:"어떻게 한다?"};
 const ROOM_PATH=`act1/${ROOM}`;
@@ -146,8 +147,10 @@ const $=id=>document.getElementById(id);
 const els={waiting:$('waitingView'),drawing:$('drawingView'),game:$('gameView'),grid:$('numberGrid'),count:$('onlineCount'),drawSlots:$('drawSlots'),roundTitle:$('roundTitle'),members:$('memberRow'),timer:$('timer'),art:$('artCard'),image:$('sceneImage'),pieces:$('piecePanel'),strip:$('sentenceStrip'),next:$('nextBtn'),reveal:$('revealBtn'),redraw:$('redrawBtn'),reset:$('resetBtn'),badge:$('modeBadge'),toast:$('toast')};
 let room={},transport,drawToken='',timerId=0,toastId=0,lastPhase='';
 
-IMAGE_FILES.forEach(name=>{const img=new Image();img.src=`img/${name}`});
-for(let n=1;n<=26;n++){const cell=document.createElement('div');cell.className='student';cell.dataset.no=n;cell.textContent=n;els.grid.append(cell)}
+const imageUrl=name=>new URL(`img/${name}`,document.baseURI).href;
+for(const n of STUDENT_NUMBERS){const cell=document.createElement('div');cell.className='student';cell.dataset.no=n;cell.textContent=n;els.grid.append(cell)}
+const preloadImages=()=>IMAGE_FILES.forEach((name,index)=>{const img=new Image();img.decoding='async';img.fetchPriority=index===0?'high':'low';img.src=imageUrl(name)});
+if('requestIdleCallback'in window)requestIdleCallback(preloadImages,{timeout:1800});else setTimeout(preloadImages,300);
 
 function blankRoom(){return{state:{phase:'waiting',round:-1,picked:[],imageIndex:0,startedAt:0,inputStartedAt:0},presence:{},used:{},drafts:{},rounds:{},sentences:{}}}
 function clone(v){return JSON.parse(JSON.stringify(v??null))}
@@ -177,7 +180,7 @@ async function firebaseTransport(){
 }
 
 function normalize(data){const b=blankRoom();return{...b,...(data||{}),state:{...b.state,...(data?.state||{})},presence:data?.presence||{},used:data?.used||{},drafts:data?.drafts||{},rounds:data?.rounds||{},sentences:data?.sentences||{}}}
-function presentNumbers(data=room){const cutoff=Date.now()-35000;return Object.entries(data.presence||{}).filter(([,v])=>{if(v===false||v?.online===false)return false;const seen=(v?.lastSeen?.seconds||0)*1000||v?.clientAt||v?.at||0;return!seen||seen>cutoff}).map(([k])=>Number(k)).filter(n=>n>=1&&n<=26).sort((a,b)=>a-b)}
+function presentNumbers(data=room){const cutoff=Date.now()-35000;return Object.entries(data.presence||{}).filter(([,v])=>{if(v===false||v?.online===false)return false;const seen=(v?.lastSeen?.seconds||0)*1000||v?.clientAt||v?.at||0;return!seen||seen>cutoff}).map(([k])=>Number(k)).filter(n=>STUDENT_NUMBERS.includes(n)).sort((a,b)=>a-b)}
 function availableNumbers(data=room){return presentNumbers(data).filter(n=>!data.used?.[n])}
 function ownerMap(members){if(members.length>=3)return{subject:members[0],object:members[1],predicate:members[2]};if(members.length===2)return{subject:members[0],object:members[0],predicate:members[1]};return{subject:members[0],object:members[0],predicate:members[0]}}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -204,7 +207,7 @@ function startDrawAnimation(s){
   const members=s.picked||[],roles=ownerMap(members),present=presentNumbers();els.drawSlots.innerHTML='';
   members.forEach((member,i)=>{const role=ROLE_ORDER.find(key=>roles[key]===member&&(!ROLE_ORDER.slice(0,ROLE_ORDER.indexOf(key)).some(prev=>roles[prev]===member)))||ROLE_ORDER[i];const owned=ROLE_ORDER.filter(k=>roles[k]===member).map(k=>ROLE_LABEL[k]).join(' · ');const card=document.createElement('div');card.className='draw-person';card.innerHTML=`<div class="rolling-number">?</div><div class="draw-role">${owned}</div>`;els.drawSlots.append(card)});
   const cards=[...els.drawSlots.children],elapsed=Math.max(0,Date.now()-(s.startedAt||Date.now())),stops=[650,1050,1450];
-  const tick=setInterval(()=>cards.forEach((card,i)=>{if(elapsed+performance.now()%100000<0)return;if(!card.classList.contains('stopped'))card.querySelector('.rolling-number').textContent=present[Math.floor(Math.random()*present.length)]||Math.ceil(Math.random()*26)}),70);
+  const tick=setInterval(()=>cards.forEach((card,i)=>{if(elapsed+performance.now()%100000<0)return;if(!card.classList.contains('stopped'))card.querySelector('.rolling-number').textContent=present[Math.floor(Math.random()*present.length)]||STUDENT_NUMBERS[Math.floor(Math.random()*STUDENT_NUMBERS.length)]}),70);
   cards.forEach((card,i)=>setTimeout(()=>{card.querySelector('.rolling-number').textContent=members[i];card.classList.add('stopped')},Math.max(0,stops[i]-elapsed)));
   setTimeout(async()=>{clearInterval(tick);await transport.transaction(data=>{data=normalize(data);if(data.state.phase==='drawing'&&data.state.round===s.round&&data.state.startedAt===s.startedAt){data.state.phase='input';data.state.inputStartedAt=Date.now()}return data})},Math.max(0,1500-elapsed));
 }
@@ -213,7 +216,7 @@ function renderGame(phase,previousPhase){
   const s=room.state,round=s.round,members=s.picked||[],owners=ownerMap(members),drafts=room.drafts?.[round]||{};
   els.roundTitle.textContent=phase==='finished'?'끝!':`${round+1}번째 모둠!`;
   els.members.innerHTML=members.map(n=>{const labels=ROLE_ORDER.filter(k=>owners[k]===n).map(k=>ROLE_LABEL[k]).join(' · ');return`<div class="member-chip"><b>${n}번</b><span>${labels}</span></div>`}).join('');
-  els.image.src=`img/${IMAGE_FILES[Math.max(0,s.imageIndex||0)]}`;els.art.classList.toggle('blurred',phase!=='revealed'&&phase!=='finished');
+  els.image.src=imageUrl(IMAGE_FILES[Math.max(0,s.imageIndex||0)]);els.art.classList.toggle('blurred',phase!=='revealed'&&phase!=='finished');
   els.pieces.innerHTML='';
   ROLE_ORDER.forEach((key,index)=>{const d=drafts[key]||{},revealed=phase==='revealed'||phase==='finished',piece=document.createElement('div');piece.className=`piece${d.typing?' typing':''}${d.submitted?' submitted':''}${revealed?' revealed':''}`;piece.dataset.role=key;const shown=revealed?(d.text?.trim()||'___'):'???';piece.innerHTML=`<span class="piece-role">${ROLE_LABEL[key]} · ${owners[key]||'-'}번</span><strong class="piece-text">${escapeHtml(shown)}</strong><i class="stamp">냈어요</i>`;if(!revealed)piece.addEventListener('click',()=>teacherFill(key,piece));els.pieces.append(piece);if(revealed){const delay=index*600,age=Date.now()-(s.revealedAt||0);setTimeout(()=>piece.classList.add('show'),previousPhase==='input'?delay:Math.max(0,delay-age))}});
   renderSentences();startTimer(phase,s.inputStartedAt);
