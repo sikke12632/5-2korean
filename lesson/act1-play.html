@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>문장 조각 게임 · 학생</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script>
+/*
+  ── 수업 전 교사가 할 일 (이 순서대로) ──
+  1. Firebase 콘솔에서 이 수업 전용 새 프로젝트를 만든다. 기존 프로젝트는 재사용하지 않는다.
+  2. Firestore Database를 프로덕션 모드, asia-northeast3(서울) 위치에 만든다.
+  3. Firestore Database > 규칙에 아래 내용을 그대로 붙여넣고 게시한다.
+     rules_version = '2';
+     service cloud.firestore {
+       match /databases/{database}/documents {
+         match /act1/s0916 {
+           allow read, write: if request.time < timestamp.value(1789570800000);
+           match /{document=**} {
+             allow read, write: if request.time < timestamp.value(1789570800000);
+           }
+         }
+       }
+     }
+  4. 프로젝트 설정에서 웹 앱을 등록한다. Authentication은 켜지 않는다.
+  5. 발급된 firebaseConfig를 아래 상수 한 곳에 그대로 복사한다.
+*/
+const firebaseConfig = Object.freeze({
+  apiKey: "AIzaSyD9E86qHToh_f_fNVAcYQldyjCPpARZB-Q",
+  authDomain: "open-cbd39.firebaseapp.com",
+  projectId: "open-cbd39",
+  storageBucket: "open-cbd39.firebasestorage.app",
+  messagingSenderId: "322878081506",
+  appId: "1:322878081506:web:40efbcf61190f867b451bb"
+});
+const ROOM = "s0916";
+</script>
+<style>
+:root{--bg:#EAF1F6;--ink:#1E2A38;--muted:#5B6B7C;--panel:#FFF;--warn:#FF6A45;--ok:#2E9E6B;--line:#D6DFE7;--yellow:#FFD75E}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--ink);font-family:"Gowun Dodum","Malgun Gothic",sans-serif;-webkit-user-select:none;user-select:none}
+button,input{font:inherit}button{border:0;cursor:pointer;touch-action:manipulation}
+main{min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:grid;place-items:center}
+.view{display:none;width:min(920px,100%)}.view.on{display:block}
+.card{background:var(--panel);border-radius:28px;box-shadow:0 3px 0 #C9D5DF;padding:clamp(20px,4vw,42px)}
+.pick{text-align:center}.pick h1,.watch h1,.turn-title,.done-title{font-family:"Jua",sans-serif;font-weight:400;letter-spacing:-.02em}
+.pick h1{font-size:clamp(38px,7vw,68px);margin-bottom:10px}.pick p{font-size:clamp(18px,2.8vw,26px);color:var(--muted);margin-bottom:24px}
+.number-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(8px,1.5vw,14px)}
+.number-btn{aspect-ratio:1;border-radius:18px;background:#F1F5F8;color:var(--ink);font-family:"Jua",sans-serif;font-size:clamp(26px,5vw,44px);box-shadow:inset 0 -3px 0 var(--line)}.number-btn:active{background:#EAF7F0;color:var(--ok);transform:translateY(2px)}
+.watch{text-align:center;display:grid;gap:18px;justify-items:center}.watch .eye{width:112px;height:112px;border-radius:50%;background:#FFF1EC;color:var(--warn);display:grid;place-items:center;font-family:"Jua",sans-serif;font-size:58px}.watch h1{font-size:clamp(42px,8vw,78px)}.watch p{font-size:clamp(20px,3.4vw,32px);color:var(--muted)}.watch b{font-family:"Jua",sans-serif;color:var(--warn);font-weight:400;font-size:1.25em}
+.turn{display:grid;gap:16px}.turn-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.turn-title{font-size:clamp(32px,5.5vw,54px);color:var(--warn)}.my-number{background:var(--ink);color:#fff;border-radius:999px;padding:.35em .85em;font-family:"Jua",sans-serif;font-size:clamp(19px,3vw,28px)}
+.art{background:var(--panel);border-radius:24px;overflow:hidden;box-shadow:0 2px 0 var(--line);aspect-ratio:4/3}.art img{width:100%;height:100%;object-fit:contain;display:block}
+.inputs{display:grid;gap:14px}.role-card{background:var(--panel);border-radius:22px;box-shadow:0 2px 0 var(--line);padding:16px 18px;display:grid;gap:8px;border:3px solid transparent}.role-card:focus-within{border-color:var(--yellow)}
+.role-label{font-family:"Jua",sans-serif;font-size:clamp(27px,4vw,40px);color:var(--warn)}
+.role-input{width:100%;border:3px solid var(--line);background:#F8FAFB;color:var(--ink);border-radius:16px;padding:.55em .7em;font-family:"Jua",sans-serif;font-size:clamp(28px,4.2vw,42px);outline:0;-webkit-user-select:text;user-select:text}.role-input:focus{border-color:var(--warn);background:#FFF}.role-input::placeholder{color:#AEB8C0}
+.submit{height:clamp(66px,9vh,82px);border-radius:22px;background:var(--warn);color:#fff;font-family:"Jua",sans-serif;font-size:clamp(28px,4vw,38px);box-shadow:0 4px 0 #C94729}.submit:active{transform:translateY(3px);box-shadow:none}.submit:disabled{opacity:.38;box-shadow:none}
+.sent-state{text-align:center;min-height:34px;color:var(--ok);font-family:"Jua",sans-serif;font-size:clamp(21px,3vw,28px)}
+.done{text-align:center;display:grid;gap:18px;justify-items:center}.done-mark{width:116px;height:116px;border-radius:50%;background:#EAF7F0;color:var(--ok);display:grid;place-items:center;font-family:"Jua",sans-serif;font-size:64px}.done-title{font-size:clamp(46px,8vw,78px);color:var(--ok)}.done p{font-size:clamp(19px,3vw,28px);color:var(--muted)}
+.mode-badge{position:fixed;top:8px;right:10px;background:#FFF3CD;color:#805C00;border-radius:999px;padding:5px 10px;font-size:12px;display:none}.mode-badge.on{display:block}
+.connection{position:fixed;left:10px;bottom:10px;border-radius:999px;padding:5px 10px;background:rgba(30,42,56,.82);color:#fff;font-size:12px;opacity:0;transition:.2s}.connection.on{opacity:1}
+@media(max-width:620px){.number-grid{grid-template-columns:repeat(5,1fr)}.card{border-radius:22px}.turn-head{align-items:flex-start}.art{border-radius:18px}}
+@media(orientation:landscape) and (max-height:700px){main{padding:12px}.turn{width:min(1100px,100%);grid-template-columns:minmax(360px,1fr) minmax(340px,.9fr);align-items:start}.turn-head{grid-column:1/-1}.inputs{align-self:stretch}.art{max-height:72vh}.role-card{padding:10px 14px}.role-input{font-size:28px}.submit{height:58px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <section id="pickView" class="view pick card on">
+    <h1>내 번호를 눌러요</h1>
+    <p>한 번 고르면 다음부터 바로 들어와요.</p>
+    <div id="numberGrid" class="number-grid"></div>
+  </section>
+  <section id="watchView" class="view watch card">
+    <div class="eye">👀</div>
+    <h1 id="watchTitle">앞 화면을 보세요</h1>
+    <p id="watchRound">모두 들어오기를 기다리고 있어요.</p>
+  </section>
+  <section id="turnView" class="view turn">
+    <div class="turn-head"><h1 id="turnTitle" class="turn-title">내 차례예요!</h1><div id="myNumber" class="my-number"></div></div>
+    <figure class="art"><img id="sceneImage" alt="내가 문장 조각을 쓸 그림"></figure>
+    <div>
+      <div id="inputs" class="inputs"></div>
+      <button id="submitBtn" class="submit">내기</button>
+      <div id="sentState" class="sent-state" aria-live="polite"></div>
+    </div>
+  </section>
+  <section id="doneView" class="view done card">
+    <div class="done-mark">✓</div>
+    <div class="done-title">냈어요!</div>
+    <p>앞 화면에서 문장이 나타나는 것을 보세요.</p>
+  </section>
+</main>
+<div id="modeBadge" class="mode-badge">점검 모드</div>
+<div id="connection" class="connection">연결을 다시 확인하고 있어요…</div>
+<script type="module">
+const IMAGE_FILES=["01-yangmal.png","02-kimchi.png","03-songpyeon.png","04-moja.png","05-goyangi.png","06-gita.png","07-gongnori.png","08-pungseon.png","09-guksu.png"];
+const ROLE_ORDER=["subject","object","predicate"];
+const ROLE_LABEL={subject:"누가?",object:"무엇을?",predicate:"어떻게 한다?"};
+const ROOM_PATH=`act1/${ROOM}`,STUDENT_KEY=`act1-student-${ROOM}`;
+const $=id=>document.getElementById(id),views=['pickView','watchView','turnView','doneView'];
+const els={pick:$('pickView'),grid:$('numberGrid'),watch:$('watchView'),watchTitle:$('watchTitle'),watchRound:$('watchRound'),turn:$('turnView'),turnTitle:$('turnTitle'),myNumber:$('myNumber'),image:$('sceneImage'),inputs:$('inputs'),submit:$('submitBtn'),sentState:$('sentState'),done:$('doneView'),badge:$('modeBadge'),connection:$('connection')};
+let room={},transport,studentNo=0,renderToken='',presenceCleanup=()=>{};
+const forced=Number(new URLSearchParams(location.search).get('student'));
+if(Number.isInteger(forced)&&forced>=1&&forced<=26)studentNo=forced;else studentNo=Number(localStorage.getItem(STUDENT_KEY))||0;
+for(let n=1;n<=26;n++){const b=document.createElement('button');b.className='number-btn';b.textContent=n;b.addEventListener('click',()=>chooseNumber(n));els.grid.append(b)}
+IMAGE_FILES.forEach(name=>{const img=new Image();img.src=`img/${name}`});
+
+function blankRoom(){return{state:{phase:'waiting',round:-1,picked:[],imageIndex:0},presence:{},used:{},drafts:{},rounds:{},sentences:{}}}
+function clone(v){return JSON.parse(JSON.stringify(v??null))}
+function pathSet(obj,path,value){const keys=path.split('/').filter(Boolean);let cur=obj;keys.slice(0,-1).forEach(k=>cur=cur[k]??={});const last=keys.at(-1);if(value===null)delete cur[last];else cur[last]=value}
+function validConfig(){return firebaseConfig.apiKey&&firebaseConfig.apiKey!=="PASTE_HERE"&&!firebaseConfig.projectId.includes("PASTE_HERE")}
+function mockTransport(){const key=`act1-demo-${ROOM}`,channel=new BroadcastChannel(key);let listener=()=>{};const load=()=>{try{return JSON.parse(localStorage.getItem(key))||blankRoom()}catch{return blankRoom()}},save=data=>{localStorage.setItem(key,JSON.stringify(data));channel.postMessage('change');listener(clone(data))};channel.onmessage=()=>listener(clone(load()));window.addEventListener('storage',e=>{if(e.key===key)listener(clone(load()))});return{demo:true,subscribe(fn){listener=fn;fn(clone(load()))},async patch(changes){const data=load();Object.entries(changes).forEach(([p,v])=>pathSet(data,p,v));save(data)},async set(path,value){const data=load();pathSet(data,path,value);save(data)},async connectPresence(n){const data=load();pathSet(data,`presence/${n}`,{online:true,at:Date.now()});save(data);return()=>{const d=load();pathSet(d,`presence/${n}`,null);save(d)}}}}
+async function firebaseTransport(){
+  const appMod=await import('https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js'),fs=await import('https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js'),app=appMod.initializeApp(firebaseConfig),db=fs.initializeFirestore(app,{localCache:fs.memoryLocalCache()}),roomRef=fs.doc(db,'act1',ROOM);
+  let cache=blankRoom(),listener=()=>{},roleUnsubs=[],roleToken='',currentStudent=studentNo;
+  const emit=()=>listener(clone(cache));
+  const stopRoles=()=>{roleUnsubs.forEach(fn=>fn());roleUnsubs=[]};
+  const watchRoles=()=>{const s=cache.state,members=s.picked||[],owners=ownerMap(members),roles=ROLE_ORDER.filter(k=>owners[k]===currentStudent),token=s.phase==='input'&&roles.length?`${s.round}-${currentStudent}-${roles.join()}`:'';if(token===roleToken)return;stopRoles();roleToken=token;if(!token)return;cache.drafts[s.round]={};roles.forEach(key=>{const ref=fs.doc(roomRef,'rounds',`r${s.round+1}`,'drafts',key);roleUnsubs.push(fs.onSnapshot(ref,snap=>{if(snap.exists())cache.drafts[s.round][key]=snap.data();else delete cache.drafts[s.round][key];emit()},err=>{console.error(err);els.connection.classList.add('on')}))})};
+  const unsubRoom=fs.onSnapshot(roomRef,{includeMetadataChanges:true},snap=>{els.connection.classList.toggle('on',snap.metadata.fromCache);if(snap.exists()){const data=snap.data();cache={...cache,...data,state:{...blankRoom().state,...(data.state||{})},used:data.used||{},rounds:data.rounds||{},sentences:data.sentences||{}}}else cache=blankRoom();watchRoles();emit()},err=>{console.error(err);els.connection.classList.add('on')});
+  return{demo:false,subscribe(fn){listener=fn;emit()},async patch(changes){const grouped={};Object.entries(changes).forEach(([path,value])=>{const [root,round,key,...rest]=path.split('/');if(root!=='drafts')return;const id=`${round}/${key}`,entry=grouped[id]??={round:+round,key,data:{},replace:false};if(!rest.length){entry.data=value;entry.replace=true}else entry.data[rest.join('.')]=value});const batch=fs.writeBatch(db);Object.values(grouped).forEach(g=>batch.set(fs.doc(roomRef,'rounds',`r${g.round+1}`,'drafts',g.key),g.data,{merge:!g.replace}));await batch.commit()},async connectPresence(n){currentStudent=n;watchRoles();const ref=fs.doc(roomRef,'presence',String(n));let active=true;const beat=()=>{if(!active)return;fs.setDoc(ref,{online:true,lastSeen:fs.serverTimestamp(),clientAt:Date.now()},{merge:true}).catch(err=>{console.error(err);els.connection.classList.add('on')})};beat();const heartbeat=setInterval(beat,10000);return()=>{active=false;clearInterval(heartbeat);stopRoles();fs.deleteDoc(ref).catch(()=>{})}},destroy(){unsubRoom();stopRoles()}}
+}
+function normalize(data){const b=blankRoom();return{...b,...(data||{}),state:{...b.state,...(data?.state||{})},presence:data?.presence||{},used:data?.used||{},drafts:data?.drafts||{}}}
+function ownerMap(members){if(members.length>=3)return{subject:members[0],object:members[1],predicate:members[2]};if(members.length===2)return{subject:members[0],object:members[0],predicate:members[1]};return{subject:members[0],object:members[0],predicate:members[0]}}
+function show(id){views.forEach(v=>$(v).classList.toggle('on',v===id))}
+async function chooseNumber(n){studentNo=n;localStorage.setItem(STUDENT_KEY,String(n));presenceCleanup();presenceCleanup=await transport.connectPresence(n);render(room)}
+function escapeHtml(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function render(data){
+  room=normalize(data);if(!studentNo){show('pickView');return}const s=room.state,phase=s.phase||'waiting',members=s.picked||[],isMine=members.includes(studentNo);
+  if(phase==='drawing'){show('watchView');els.watchTitle.textContent='번호를 뽑고 있어요';els.watchRound.textContent='앞 화면을 보세요.';return}
+  if(phase==='input'&&isMine){renderTurn();return}
+  if(phase==='revealed'&&isMine){show('doneView');return}
+  show('watchView');els.watchTitle.textContent='앞 화면을 보세요';
+  if(phase==='waiting')els.watchRound.textContent='모두 들어오기를 기다리고 있어요.';else if(phase==='finished')els.watchRound.textContent='오늘의 문장이 모두 완성됐어요!';else els.watchRound.innerHTML=`지금은 <b>${Math.max(1,(s.round||0)+1)}번째 모둠</b> 차례예요.`;
+}
+
+function renderTurn(){
+  const s=room.state,round=s.round,members=s.picked||[],owners=ownerMap(members),myRoles=ROLE_ORDER.filter(key=>owners[key]===studentNo),drafts=room.drafts?.[round]||{},token=`${round}-${studentNo}-${myRoles.join()}`;
+  show('turnView');els.turnTitle.textContent=`${round+1}번째 모둠 · 내 차례!`;els.myNumber.textContent=`${studentNo}번`;els.image.src=`img/${IMAGE_FILES[s.imageIndex||0]}`;
+  if(renderToken!==token){renderToken=token;els.inputs.innerHTML='';myRoles.forEach(key=>{const card=document.createElement('label');card.className='role-card';card.innerHTML=`<span class="role-label">${ROLE_LABEL[key]}</span><input class="role-input" data-role="${key}" maxlength="30" autocomplete="off" placeholder="여기에 써요">`;const input=card.querySelector('input');input.value=drafts[key]?.text||'';input.addEventListener('input',()=>sendTyping(key,input.value));els.inputs.append(card)});setTimeout(()=>els.inputs.querySelector('input')?.focus(),50)}else{myRoles.forEach(key=>{const input=els.inputs.querySelector(`[data-role="${key}"]`);if(input&&document.activeElement!==input&&input.value!==(drafts[key]?.text||''))input.value=drafts[key]?.text||''})}
+  const allReady=myRoles.every(k=>(els.inputs.querySelector(`[data-role="${k}"]`)?.value||'').trim());const submitted=myRoles.length&&myRoles.every(k=>drafts[k]?.submitted);els.submit.disabled=!allReady;els.sentState.textContent=submitted?'냈어요! 공개 전까지 고칠 수 있어요.':'';
+}
+async function sendTyping(key,value){if(room.state.phase!=='input')return;await transport.patch({[`drafts/${room.state.round}/${key}/text`]:value,[`drafts/${room.state.round}/${key}/typing`]:!!value.trim(),[`drafts/${room.state.round}/${key}/owner`]:studentNo,[`drafts/${room.state.round}/${key}/updatedAt`]:Date.now()});const inputs=[...els.inputs.querySelectorAll('input')];els.submit.disabled=!inputs.every(i=>i.value.trim())}
+async function submitMine(){if(room.state.phase!=='input')return;const changes={};[...els.inputs.querySelectorAll('input')].forEach(input=>{const key=input.dataset.role,value=input.value.trim();changes[`drafts/${room.state.round}/${key}`]={text:value,typing:!!value,submitted:!!value,owner:studentNo,updatedAt:Date.now()}});await transport.patch(changes);els.sentState.textContent='냈어요! 공개 전까지 고칠 수 있어요.'}
+els.submit.addEventListener('click',submitMine);
+
+try{transport=validConfig()?await firebaseTransport():mockTransport();if(transport.demo)els.badge.classList.add('on');transport.subscribe(render);if(studentNo)presenceCleanup=await transport.connectPresence(studentNo)}catch(err){console.error(err);transport=mockTransport();els.badge.classList.add('on');transport.subscribe(render);if(studentNo)presenceCleanup=await transport.connectPresence(studentNo)}
+window.addEventListener('pagehide',()=>presenceCleanup());
+</script>
+</body>
+</html>
